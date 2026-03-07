@@ -1,0 +1,12 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "docker mcp": true,
+        "New-Item": true,
+        "Out-Null": true,
+        "Test-Path": true,
+        "npm install": true,
+        "npx prisma": true,
+        "Push-Location": true,
+        "npm run dev": true
+    }
+}
