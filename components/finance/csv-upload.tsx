@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useRef, useState } from "react"
-import { Upload, FileText, CheckCircle, AlertCircle, Loader2, Brain } from "lucide-react"
+import { Upload, FileText, CheckCircle, AlertCircle, Loader2, Brain, ExternalLink } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 type ImportResult = {
@@ -11,6 +11,7 @@ type ImportResult = {
   duplicates: number
   errors: number
   parseErrors?: { row: number; error: string }[]
+  llmMapped?: boolean
 }
 
 type ClassifyEstimate = {
@@ -26,6 +27,7 @@ const BANK_LABELS: Record<string, string> = {
   nubank: "Nubank",
   xp: "XP Investimentos",
   bitybank: "Bitybank",
+  outros: "Arquivo personalizado",
 }
 
 export function CsvUpload({ onImportComplete }: Props) {
@@ -37,8 +39,9 @@ export function CsvUpload({ onImportComplete }: Props) {
   const [error, setError] = useState<string | null>(null)
 
   const handleFile = useCallback(async (file: File) => {
-    if (!file.name.endsWith(".csv")) {
-      setError("Apenas arquivos .csv são aceitos")
+    const ext = file.name.split(".").pop()?.toLowerCase() ?? ""
+    if (!["csv", "xls", "xlsx"].includes(ext)) {
+      setError("Apenas arquivos .csv, .xls ou .xlsx são aceitos")
       setPhase("error")
       return
     }
@@ -115,20 +118,33 @@ export function CsvUpload({ onImportComplete }: Props) {
       <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-border bg-muted/20 p-12">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
         <p className="text-sm font-medium">
-          {phase === "parsing" ? "Processando CSV…" : "Classificando com IA…"}
+          {phase === "parsing" ? "Processando arquivo…" : "Classificando com IA…"}
+        </p>
+        <p className="text-xs text-muted-foreground">
+          {phase === "parsing" ? "Se o formato não for reconhecido, a IA fará o mapeamento automático" : ""}
         </p>
       </div>
     )
   }
 
   if (phase === "error") {
+    const isPortfolioFile = error?.includes("Posição Detalhada") || error?.includes("Investimentos")
     return (
       <div className="rounded-xl border border-destructive/50 bg-destructive/5 p-6 space-y-3">
-        <div className="flex items-center gap-2 text-destructive">
-          <AlertCircle className="h-5 w-5" />
+        <div className="flex items-start gap-2 text-destructive">
+          <AlertCircle className="h-5 w-5 mt-0.5 shrink-0" />
           <p className="text-sm font-medium">{error}</p>
         </div>
-        <button onClick={reset} className="text-xs text-muted-foreground underline">
+        {isPortfolioFile && (
+          <a
+            href="/investments"
+            className="inline-flex items-center gap-1.5 text-xs text-primary underline"
+          >
+            <ExternalLink className="h-3 w-3" />
+            Ir para página de Investimentos
+          </a>
+        )}
+        <button onClick={reset} className="block text-xs text-muted-foreground underline">
           Tentar novamente
         </button>
       </div>
@@ -138,11 +154,19 @@ export function CsvUpload({ onImportComplete }: Props) {
   if (phase === "done" && result) {
     return (
       <div className="rounded-xl border border-border bg-card p-6 space-y-4">
-        <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
-          <CheckCircle className="h-5 w-5" />
-          <p className="text-sm font-semibold">
-            Arquivo importado — {BANK_LABELS[result.bank] ?? result.bank}
-          </p>
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center gap-2 text-green-600 dark:text-green-400">
+            <CheckCircle className="h-5 w-5" />
+            <p className="text-sm font-semibold">
+              Arquivo importado — {BANK_LABELS[result.bank] ?? result.bank}
+            </p>
+          </div>
+          {result.llmMapped && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-violet-100 dark:bg-violet-900/30 px-2 py-0.5 text-xs font-medium text-violet-700 dark:text-violet-300">
+              <Brain className="h-3 w-3" />
+              Mapeado por IA
+            </span>
+          )}
         </div>
 
         <div className="grid grid-cols-3 gap-4">
@@ -225,16 +249,16 @@ export function CsvUpload({ onImportComplete }: Props) {
       </div>
       <div className="text-center">
         <p className="text-sm font-medium">
-          {dragging ? "Solte o arquivo aqui" : "Arraste o CSV ou clique para selecionar"}
+          {dragging ? "Solte o arquivo aqui" : "Arraste o arquivo ou clique para selecionar"}
         </p>
         <p className="text-xs text-muted-foreground mt-1">
-          Suporta: Nubank (conta corrente e cartão), XP Investimentos, Bitybank
+          Qualquer banco ou corretora · CSV, XLS ou XLSX
         </p>
       </div>
       <input
         ref={inputRef}
         type="file"
-        accept=".csv"
+        accept=".csv,.xls,.xlsx"
         className="hidden"
         onChange={onInputChange}
       />

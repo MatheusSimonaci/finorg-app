@@ -1,5 +1,5 @@
 import OpenAI from "openai"
-import { db } from "@/lib/db"
+import { prisma as db } from "@/lib/db"
 import type { ClassificationResult } from "./rule-matcher"
 
 const SYSTEM_PROMPT = `
@@ -14,10 +14,13 @@ REGRAS DE CLASSIFICAÇÃO:
 - CapCut, Adobe, Figma, Canva, Notion, Slack, Linear, Continuity → nature: work_tool, category: assinatura
 - Qualquer "SALARIO" ou "FOLHA" → nature: pessoal, category: receita, type: receita
 - Transferências para MEI/CNPJ/nome de empresa → nature: empresa
+- Igrejas, templos, ministérios, "NOVOS COMECOS", "COMUNIDADE", "MINISTERIO", "IGREJA" → nature: pessoal, category: doacao, subcategory: dizimo
+- Descrições com "DIZIMO", "OFERTA", "DONATIVO", "CONTRIBUICAO" para entidades religiosas → nature: pessoal, category: doacao, subcategory: oferta
+- O usuário é cristão e dizima regularmente — transferências recorrentes para o mesmo CNPJ/pessoa de instituição religiosa devem ser tratadas como dízimo
 
 DIMENSÕES:
 - nature: pessoal | empresa | work_tool | misto
-- category: saude | educacao | lazer | alimentacao | moradia | assinatura | investimento | transporte | receita | pet | servicos | outros
+- category: saude | educacao | lazer | alimentacao | moradia | assinatura | investimento | transporte | receita | pet | servicos | doacao | outros
 - type: gasto | investimento | reserva | receita | transferencia
 
 Responda SEMPRE em JSON com array "results", um item por transação enviada.
@@ -85,7 +88,7 @@ export async function classifyBatch(
       // malformed response — skip batch
     }
 
-    for (const item of parsed.results ?? []) {
+    for (const item of (parsed.results ?? []) as Array<ClassificationResult & { id: string }>) {
       if (item.id) {
         results.set(item.id, { ...item, source: "ai" as const })
       }
@@ -97,3 +100,4 @@ export async function classifyBatch(
 
   return { results, tokensUsed }
 }
+

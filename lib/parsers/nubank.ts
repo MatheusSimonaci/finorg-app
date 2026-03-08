@@ -14,7 +14,7 @@ export const nubankParser: BankParser = {
     return false
   },
   parse: (rows, accountId): ParseResult => {
-    const transactions = []
+    const transactions: import('./types').NormalizedTransaction[] = []
     const parseErrors: { row: number; error: string }[] = []
 
     if (rows.length === 0) return { transactions, parseErrors }

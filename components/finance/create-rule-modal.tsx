@@ -5,9 +5,9 @@ import { X, AlertCircle, CheckCircle } from "lucide-react"
 
 type Props = {
   description: string
-  suggestedNature: string
-  suggestedCategory: string
-  suggestedType: string
+  nature: string
+  category: string
+  type: string
   onClose: () => void
   onCreated?: (matchCount: number) => void
 }
@@ -26,7 +26,7 @@ function suggestPattern(desc: string): string {
   return words.slice(0, 2).join("|") || clean.slice(0, 20)
 }
 
-export function CreateRuleModal({ description, suggestedNature, suggestedCategory, suggestedType, onClose, onCreated }: Props) {
+export function CreateRuleModal({ description, nature: suggestedNature, category: suggestedCategory, type: suggestedType, onClose, onCreated }: Props) {
   const [pattern, setPattern] = useState(suggestPattern(description))
   const [nature, setNature] = useState(suggestedNature)
   const [category, setCategory] = useState(suggestedCategory)

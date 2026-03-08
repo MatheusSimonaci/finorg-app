@@ -39,6 +39,7 @@ model Transaction {
   classificationSource   String?  // rule | ai | manual
   reviewStatus           String   @default("pending") // pending | approved | overridden
   importBatchId          String?
+  rawData                String?
   hash                   String   @unique
   createdAt              DateTime @default(now())
 }
@@ -56,20 +57,42 @@ model ClassificationRule {
 }
 
 model Asset {
-  id           String   @id @default(cuid())
+  id           String          @id @default(cuid())
   name         String
-  type         String   // tesouro | cdb | lci | fii | acoes | cripto | previdencia | fundo | conta_remunerada
+  type         String          // tesouro | cdb | lci | fii | acoes | cripto | previdencia | fundo | conta_remunerada
   subtype      String?
   institution  String
-  currentValue Decimal  @default(0)
-  lastUpdated  DateTime @default(now())
-  purpose      String   @default("personal") // personal | business | reserve | dream
+  currentValue Decimal         @default(0)
+  lastUpdated  DateTime        @default(now())
+  purpose      String          @default("personal") // personal | business | reserve | dream
   dreamId      String?
-  dream        Dream?   @relation(fields: [dreamId], references: [id])
-  active       Boolean  @default(true)
+  dream        Dream?          @relation(fields: [dreamId], references: [id])
+  active       Boolean         @default(true)
   accountId    String?
-  account      Account? @relation(fields: [accountId], references: [id])
-  createdAt    DateTime @default(now())
+  account      Account?        @relation(fields: [accountId], references: [id])
+  snapshots    AssetSnapshot[]
+  createdAt    DateTime        @default(now())
+}
+
+model AssetSnapshot {
+  id        String   @id @default(cuid())
+  assetId   String
+  asset     Asset    @relation(fields: [assetId], references: [id])
+  month     String   // YYYY-MM
+  value     Decimal
+  createdAt DateTime @default(now())
+
+  @@unique([assetId, month])
+}
+
+model AllocationTarget {
+  id        String   @id @default(cuid())
+  assetType String
+  targetPct Float
+  mode      String   @default("normal") // normal | sonho_ativo | rebalanceando
+  createdAt DateTime @default(now())
+
+  @@unique([assetType, mode])
 }
 
 model Dream {
@@ -83,7 +106,17 @@ model Dream {
   archivedAt    DateTime?
   notes         String?
   assets        Asset[]
+  rebalancingSnapshots DreamRebalancingSnapshot[]
   createdAt     DateTime  @default(now())
+}
+
+model DreamRebalancingSnapshot {
+  id           String   @id @default(cuid())
+  dreamId      String
+  dream        Dream    @relation(fields: [dreamId], references: [id])
+  assetType    String
+  deviationPct Float
+  createdAt    DateTime @default(now())
 }
 
 model Budget {
@@ -113,6 +146,30 @@ model AppConfig {
   updatedAt DateTime @updatedAt
 }
 
+model RecurringExpense {
+  id                 String    @id @default(cuid())
+  name               String
+  type               String    // installment | seasonal
+  amount             Decimal
+  category           String
+  totalInstallments  Int?
+  currentInstallment Int?
+  startDate          DateTime?
+  monthOfYear        Int?      // 1-12 for seasonal
+  active             Boolean   @default(true)
+  notes              String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+model SnoozedAlert {
+  id           String   @id @default(cuid())
+  alertKey     String   @unique
+  reason       String?
+  snoozedUntil DateTime
+  createdAt    DateTime @default(now())
+}
+
 model ImportBatch {
   id         String   @id @default(cuid())
   fileName   String
@@ -124,4 +181,29 @@ model ImportBatch {
   costBRL    Float?
   status     String   @default("imported") // imported | classifying | classified | confirmed
   createdAt  DateTime @default(now())
+}
+
+model ProjectionParams {
+  id            String   @id @default(cuid())
+  assetCategory String   @unique
+  annualRate    Float
+  irRate        Float
+  updatedAt     DateTime @updatedAt
+}
+
+model GlobalParams {
+  id            String   @id @default("singleton")
+  inflationRate Float    @default(0.045)
+  updatedAt     DateTime @updatedAt
+}
+
+model SnapshotSettings {
+  id              String   @id @default("singleton")
+  privacyMode     String   @default("public") // public | protected
+  passwordHash    String?
+  maskValues      Boolean  @default(false)
+  vercelTokenEnc  String?
+  lastDeployUrl   String?
+  lastDeployedAt  DateTime?
+  updatedAt       DateTime @updatedAt
 }

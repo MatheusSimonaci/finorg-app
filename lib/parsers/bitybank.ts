@@ -9,7 +9,7 @@ export const biybankParser: BankParser = {
     return h.includes("moeda") || h.includes("totalbrl") || (h.includes("tipo") && h.includes("totalbrl"))
   },
   parse: (rows, accountId): ParseResult => {
-    const transactions = []
+    const transactions: import('./types').NormalizedTransaction[] = []
     const parseErrors: { row: number; error: string }[] = []
 
     rows.forEach((row, i) => {

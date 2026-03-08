@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { useTheme } from 'next-themes'
 import {
@@ -9,10 +10,12 @@ import {
   PieChart,
   TrendingUp,
   Sparkles,
+  ShieldCheck,
+  LineChart,
   Settings,
   Moon,
   Sun,
-  Wallet,
+  Shield,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -22,8 +25,9 @@ const NAV_ITEMS = [
   { href: '/budget', label: 'Orçamento', icon: PieChart },
   { href: '/investments', label: 'Investimentos', icon: TrendingUp },
   { href: '/dreams', label: 'Sonhos', icon: Sparkles },
+  { href: '/reserve', label: 'Reserva', icon: ShieldCheck },
+  { href: '/projections', label: 'Projeções', icon: LineChart },
 ]
-
 function NavItem({
   href,
   label,
@@ -44,7 +48,7 @@ function NavItem({
       <Link
         href={href}
         className={cn(
-          'flex flex-col items-center gap-0.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors',
+          'flex flex-col items-center gap-0.5 px-3 py-2 rounded text-xs font-medium transition-colors flex-shrink-0',
           isActive
             ? 'text-primary'
             : 'text-sidebar-muted hover:text-sidebar-foreground',
@@ -60,10 +64,10 @@ function NavItem({
     <Link
       href={href}
       className={cn(
-        'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150',
+        'flex items-center gap-3 px-3 py-2 rounded text-sm font-medium transition-all duration-150',
         isActive
-          ? 'bg-sidebar-accent text-primary'
-          : 'text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent/50',
+          ? 'bg-sidebar-accent text-primary border-l-2 border-primary/80'
+          : 'text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent/50 border-l-2 border-transparent',
       )}
     >
       <Icon className={cn('h-4 w-4 flex-shrink-0', isActive && 'stroke-[2px]')} />
@@ -74,23 +78,33 @@ function NavItem({
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const { theme, setTheme } = useTheme()
+  const { resolvedTheme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  // Avoid hydration mismatch: theme is unknown during SSR
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => setMounted(true), [])
+
+  const isDark = mounted && resolvedTheme === 'dark'
 
   return (
     <div className="flex min-h-svh bg-background">
       {/* ─── Desktop Sidebar ─── */}
       <aside className="hidden lg:flex flex-col w-60 flex-shrink-0 border-r border-sidebar-border bg-sidebar sticky top-0 h-screen overflow-y-auto">
-        {/* Logo */}
-        <div className="flex items-center gap-2.5 px-5 pt-6 pb-4">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary text-primary-foreground flex-shrink-0">
-            <Wallet className="h-4 w-4" />
+        {/* Yellow accent top line */}
+        <div className="h-px bg-primary/40" />
+
+        {/* Logo — Wayne Industries */}
+        <div className="flex items-center gap-3 px-5 pt-5 pb-4">
+          <div className="flex items-center justify-center w-8 h-8 rounded bg-primary/10 border border-primary/30 text-primary flex-shrink-0">
+            <Shield className="h-4 w-4" />
           </div>
           <div className="min-w-0">
-            <span className="block text-sm font-bold text-sidebar-foreground tracking-tight truncate">
-              FinOrg
+            <span className="block text-xs font-bold text-primary tracking-[0.2em] truncate uppercase">
+              FINORG
             </span>
-            <span className="block text-[10px] text-sidebar-muted leading-none">
-              Finanças Pessoais
+            <span className="block text-[9px] text-sidebar-muted leading-none tracking-[0.12em] uppercase">
+              Wayne Industries
             </span>
           </div>
         </div>
@@ -107,11 +121,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </nav>
 
         {/* Bottom section */}
-        <div className="px-3 pb-5 space-y-0.5 border-t border-sidebar-border pt-3">
+        <div className="px-3 pb-4 space-y-0.5 border-t border-sidebar-border pt-3">
           <Link
             href="/settings"
             className={cn(
-              'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150',
+              'flex items-center gap-3 px-3 py-2 rounded text-sm font-medium transition-all duration-150',
               pathname.startsWith('/settings')
                 ? 'bg-sidebar-accent text-primary'
                 : 'text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent/50',
@@ -122,16 +136,24 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </Link>
 
           <button
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-all duration-150"
+            onClick={() => setTheme(isDark ? 'light' : 'dark')}
+            className="w-full flex items-center gap-3 px-3 py-2 rounded text-sm font-medium text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-all duration-150"
           >
-            {theme === 'dark' ? (
+            {isDark ? (
               <Sun className="h-4 w-4" />
             ) : (
               <Moon className="h-4 w-4" />
             )}
-            {theme === 'dark' ? 'Modo claro' : 'Modo escuro'}
+            {isDark ? 'Modo claro' : 'Modo escuro'}
           </button>
+
+          {/* SISTEMA ONLINE indicator */}
+          <div className="flex items-center gap-2 px-3 pt-2 pb-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-income animate-pulse flex-shrink-0" />
+            <span className="text-[9px] tracking-[0.15em] uppercase text-sidebar-muted">
+              Sistema Online
+            </span>
+          </div>
         </div>
       </aside>
 
@@ -139,18 +161,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <div className="flex-1 flex flex-col min-h-svh min-w-0">
         {/* Mobile topbar */}
         <header className="lg:hidden flex items-center justify-between px-4 h-14 border-b border-border bg-card sticky top-0 z-40">
-          <div className="flex items-center gap-2">
-            <div className="flex items-center justify-center w-7 h-7 rounded-md bg-primary text-primary-foreground">
-              <Wallet className="h-3.5 w-3.5" />
+          <div className="flex items-center gap-2.5">
+            <div className="flex items-center justify-center w-7 h-7 rounded bg-primary/10 border border-primary/30 text-primary">
+              <Shield className="h-3.5 w-3.5" />
             </div>
-            <span className="text-sm font-bold text-foreground">FinOrg</span>
+            <div className="flex flex-col">
+              <span className="text-xs font-bold text-primary tracking-[0.18em] uppercase leading-none">FINORG</span>
+              <span className="text-[8px] text-muted-foreground tracking-[0.1em] uppercase leading-none">Wayne Industries</span>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              onClick={() => setTheme(isDark ? 'light' : 'dark')}
               className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
             >
-              {theme === 'dark' ? (
+              {isDark ? (
                 <Sun className="h-4 w-4" />
               ) : (
                 <Moon className="h-4 w-4" />
@@ -165,13 +190,44 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
+        {/* ─── Batcomputer Status Ticker ─── */}
+        <div className="hidden dark:flex border-b border-border/40 h-6 items-center bg-card/40 flex-shrink-0 ticker-track">
+          <div className="ticker-inner font-mono text-[8px] tracking-[0.16em] uppercase select-none">
+            {[0, 1].map((i) => (
+              <span key={i} className="inline-flex items-center gap-5 pr-5 text-holo/38">
+                <span><span className="text-income/55">&#9679;</span> FINORG BCv.978</span>
+                <span className="text-primary/25">&#9656;</span>
+                <span>ENC: AES-256-Q</span>
+                <span className="text-primary/25">&#9656;</span>
+                <span>BATCOMPUTER: ONLINE</span>
+                <span className="text-primary/25">&#9656;</span>
+                <span className="text-primary/45">STATUS: AUTORIZADO</span>
+                <span className="text-primary/25">&#9656;</span>
+                <span>USUÁRIO: B.WAYNE</span>
+                <span className="text-primary/25">&#9656;</span>
+                <span>MODO: TÁTICO</span>
+                <span className="text-primary/25">&#9656;</span>
+                <span>PROTOCOLO: ARKHAM</span>
+                <span className="text-primary/25">&#9656;</span>
+                <span className="text-primary/38">WAYNE IND. — CONFIDENCIAL</span>
+                <span className="text-primary/25">&#9656;</span>
+                <span>GOTHAM CITY • BATCAVERNA</span>
+                <span className="text-primary/25">&#9656;</span>
+              </span>
+            ))}
+          </div>
+        </div>
+
         {/* Page content */}
         <main className="flex-1 pb-24 lg:pb-0">{children}</main>
       </div>
 
       {/* ─── Mobile bottom nav ─── */}
       <nav className="lg:hidden fixed bottom-0 inset-x-0 z-50 border-t border-sidebar-border bg-sidebar/95 backdrop-blur-sm safe-area-inset-bottom">
-        <div className="flex items-center justify-around px-2 py-1">
+        <div
+          className="flex items-center px-2 py-1 overflow-x-auto"
+          style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
+        >
           {NAV_ITEMS.map((item) => (
             <NavItem key={item.href} {...item} pathname={pathname} mobile />
           ))}

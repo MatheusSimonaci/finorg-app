@@ -9,7 +9,7 @@ export const xpParser: BankParser = {
     return h.includes("historico") || (h.includes("credito") && h.includes("debito"))
   },
   parse: (rows, accountId): ParseResult => {
-    const transactions = []
+    const transactions: import('./types').NormalizedTransaction[] = []
     const parseErrors: { row: number; error: string }[] = []
 
     rows.forEach((row, i) => {
