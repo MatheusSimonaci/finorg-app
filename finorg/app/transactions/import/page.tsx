@@ -10,9 +10,9 @@ export default function ImportPage() {
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <div>
-          <h1 className="text-xl font-bold tracking-tight">Importar Extrato CSV</h1>
+          <h1 className="text-xl font-bold tracking-tight">Importar Extrato</h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Nubank, XP Investimentos ou Bitybank — detecção automática
+            Qualquer banco ou corretora — a IA mapeia automaticamente
           </p>
         </div>
       </div>
@@ -20,12 +20,11 @@ export default function ImportPage() {
       <CsvUpload />
 
       <div className="rounded-lg border border-border bg-muted/20 p-4 space-y-2">
-        <p className="text-xs font-semibold text-foreground">Formatos suportados</p>
+        <p className="text-xs font-semibold text-foreground">Como funciona</p>
         <div className="space-y-1 text-xs text-muted-foreground">
-          <p><strong>Nubank conta corrente:</strong> Data, Descrição, Valor</p>
-          <p><strong>Nubank cartão:</strong> date, title, amount</p>
-          <p><strong>XP Investimentos:</strong> Data, Histórico, Crédito, Débito, Saldo</p>
-          <p><strong>Bitybank:</strong> Data, Tipo, Moeda, Total BRL</p>
+          <p>Formatos conhecidos (Nubank, XP, Bitybank) são detectados automaticamente.</p>
+          <p>Qualquer outro banco ou corretora é mapeado pela IA — você revisa antes de confirmar.</p>
+          <p>Aceita CSV, XLS e XLSX.</p>
         </div>
       </div>
     </div>

@@ -107,7 +107,7 @@ export default function RulesPage() {
             </div>
             {[
               { label: "Natureza", value: newNature, options: ["pessoal", "empresa", "work_tool", "misto"], set: setNewNature },
-              { label: "Categoria", value: newCategory, options: ["alimentacao", "assinatura", "educacao", "investimento", "lazer", "moradia", "outros", "pet", "receita", "saude", "servicos", "transporte"], set: setNewCategory },
+              { label: "Categoria", value: newCategory, options: ["alimentacao", "assinatura", "doacao", "educacao", "investimento", "lazer", "moradia", "outros", "pet", "receita", "saude", "servicos", "transporte"], set: setNewCategory },
             ].map(({ label, value, options, set }) => (
               <div key={label}>
                 <label className="text-xs text-muted-foreground mb-1 block">{label}</label>

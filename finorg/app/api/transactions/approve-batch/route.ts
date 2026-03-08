@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { db } from "@/lib/db"
+import { prisma as db } from "@/lib/db"
 
 export async function POST(req: NextRequest) {
   const { batchId } = await req.json()
@@ -27,3 +27,4 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ approved: result.count, remaining: pendingCount })
 }
+

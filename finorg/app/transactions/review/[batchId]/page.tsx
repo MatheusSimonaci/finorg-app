@@ -163,6 +163,7 @@ export default function ReviewPage({ params }: { params: Promise<{ batchId: stri
                 key={tx.id}
                 tx={tx}
                 onUpdated={(patch) => updateTx(tx.id, patch)}
+                onDeleted={() => setTransactions((prev) => prev.filter((t) => t.id !== tx.id))}
                 onRuleCreate={(desc, nature, category, type) =>
                   setRuleModal({ description: desc, nature, category, type })
                 }

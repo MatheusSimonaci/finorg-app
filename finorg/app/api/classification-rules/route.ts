@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { db } from "@/lib/db"
+import { prisma as db } from "@/lib/db"
 
 export async function GET() {
   const rules = await db.classificationRule.findMany({
@@ -34,3 +34,4 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ ...rule, matchCount })
 }
+

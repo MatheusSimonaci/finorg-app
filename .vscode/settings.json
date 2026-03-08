@@ -7,6 +7,8 @@
         "npm install": true,
         "npx prisma": true,
         "Push-Location": true,
-        "npm run dev": true
+        "npm run dev": true,
+        "npm run build": true,
+        "npx tsc": true
     }
 }

@@ -2,11 +2,12 @@
 
 import { useState, useRef } from "react"
 import { cn, formatCurrency, formatDate } from "@/lib/utils"
-import { ChevronDown, Info, RefreshCw } from "lucide-react"
+import { ChevronDown, ChevronUp, RefreshCw, Pencil, Trash2 } from "lucide-react"
+import { TransactionModal } from "./transaction-modal"
 
 const NATURE_OPTIONS = ["pessoal", "empresa", "work_tool", "misto"]
 const CATEGORY_OPTIONS = [
-  "alimentacao", "assinatura", "educacao", "investimento", "lazer",
+  "alimentacao", "assinatura", "doacao", "educacao", "investimento", "lazer",
   "moradia", "outros", "pet", "receita", "saude", "servicos", "transporte",
 ]
 const TYPE_OPTIONS = ["gasto", "investimento", "receita", "reserva", "transferencia"]
@@ -31,6 +32,7 @@ type Transaction = {
 type Props = {
   tx: Transaction
   onUpdated: (updated: Partial<Transaction>) => void
+  onDeleted: () => void
   onRuleCreate?: (description: string, nature: string, category: string, type: string) => void
 }
 
@@ -67,8 +69,13 @@ function InlineSelect({
   )
 }
 
-export function TransactionRow({ tx, onUpdated, onRuleCreate }: Props) {
+export function TransactionRow({ tx, onUpdated, onDeleted, onRuleCreate }: Props) {
   const [saving, setSaving] = useState(false)
+  const [expanded, setExpanded] = useState(false)
+  const [subcategory, setSubcategory] = useState(tx.subcategory ?? "")
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const confidence = tx.confidence ?? 0
@@ -100,8 +107,28 @@ export function TransactionRow({ tx, onUpdated, onRuleCreate }: Props) {
   }
 
   return (
+    <>
+    {showEditModal && (
+      <TransactionModal
+        initialData={{
+          id: tx.id,
+          date: tx.date.slice(0, 10),
+          description: tx.description,
+          amount: String(tx.amount),
+          accountId: tx.account ? undefined : undefined, // will default to first account
+          nature: tx.nature ?? "pessoal",
+          category: tx.category ?? "outros",
+          subcategory: tx.subcategory ?? "",
+          type: tx.type ?? "gasto",
+          isReimbursable: tx.isReimbursable,
+        }}
+        onClose={() => setShowEditModal(false)}
+        onSaved={(updated) => { onUpdated(updated as Partial<Transaction>); setShowEditModal(false) }}
+      />
+    )}
     <tr className={cn("border-b border-border text-sm transition-colors hover:bg-muted/30",
-      isPending && "bg-amber-50/30 dark:bg-amber-900/10"
+      isPending && "bg-amber-50/30 dark:bg-amber-900/10",
+      expanded && "bg-muted/20"
     )}>
       {/* Date */}
       <td className="px-3 py-2 text-xs text-muted-foreground whitespace-nowrap">
@@ -109,11 +136,22 @@ export function TransactionRow({ tx, onUpdated, onRuleCreate }: Props) {
       </td>
 
       {/* Description */}
-      <td className="px-3 py-2 max-w-[220px]">
-        <p className="truncate font-medium text-foreground">{tx.description}</p>
-        {tx.reasoning && (
-          <p className="truncate text-xs text-muted-foreground">{tx.reasoning}</p>
-        )}
+      <td className="px-3 py-2 max-w-[220px] overflow-hidden">
+        <div className="flex items-start gap-1">
+          <button
+            onClick={() => setExpanded((e) => !e)}
+            className="mt-0.5 shrink-0 text-muted-foreground hover:text-foreground transition-colors"
+            title={expanded ? "Ocultar detalhes" : "Ver detalhes"}
+          >
+            {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+          </button>
+          <div className="min-w-0 overflow-hidden">
+            <p className="truncate font-medium text-foreground" title={tx.description}>{tx.description}</p>
+            <p className="text-[10px] text-muted-foreground">
+              {expanded ? "clique para ocultar" : "clique para ver detalhes"}
+            </p>
+          </div>
+        </div>
       </td>
 
       {/* Amount */}
@@ -195,6 +233,119 @@ export function TransactionRow({ tx, onUpdated, onRuleCreate }: Props) {
           />
         )}
       </td>
+
+      {/* Actions */}
+      <td className="px-2 py-2">
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setShowEditModal(true)}
+            className="rounded p-1 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            title="Editar transação"
+          >
+            <Pencil className="h-3.5 w-3.5" />
+          </button>
+          {confirmDelete ? (
+            <div className="flex items-center gap-1">
+              <button
+                onClick={async () => {
+                  setDeleting(true)
+                  await fetch(`/api/transactions/${tx.id}`, { method: "DELETE" })
+                  setDeleting(false)
+                  setConfirmDelete(false)
+                  onDeleted()
+                }}
+                disabled={deleting}
+                className="rounded px-1.5 py-0.5 text-[10px] font-medium bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
+              >
+                {deleting ? "…" : "Confirmar"}
+              </button>
+              <button
+                onClick={() => setConfirmDelete(false)}
+                className="rounded px-1.5 py-0.5 text-[10px] font-medium border border-border hover:bg-muted"
+              >
+                Cancelar
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setConfirmDelete(true)}
+              className="rounded p-1 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+              title="Excluir transação"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
+      </td>
     </tr>
+
+    {/* Expanded detail panel */}
+    {expanded && (
+      <tr className="border-b border-border bg-muted/10">
+        <td colSpan={10} className="px-4 py-3">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+            {/* Full description */}
+            <div className="col-span-2 md:col-span-3 lg:col-span-4">
+              <p className="text-xs font-medium text-muted-foreground mb-0.5">Descrição completa</p>
+              <p className="text-sm font-medium break-words">{tx.description}</p>
+            </div>
+
+            {/* Full reasoning */}
+            {tx.reasoning && (
+              <div className="col-span-2 md:col-span-3 lg:col-span-4">
+                <p className="text-xs font-medium text-muted-foreground mb-0.5">Raciocínio da IA</p>
+                <p className="text-xs text-muted-foreground break-words rounded-md bg-muted/40 p-2">{tx.reasoning}</p>
+              </div>
+            )}
+
+            {/* Account */}
+            <div>
+              <p className="text-xs font-medium text-muted-foreground mb-0.5">Conta</p>
+              <p className="text-xs">{tx.account.name} ({INSTITUTION_LABEL[tx.account.institution] ?? tx.account.institution})</p>
+            </div>
+
+            {/* Confidence bar */}
+            <div>
+              <p className="text-xs font-medium text-muted-foreground mb-1">Confiança da IA</p>
+              <div className="flex items-center gap-2">
+                <div className="h-2 flex-1 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className={cn("h-full rounded-full transition-all",
+                      confidence >= 0.75 ? "bg-green-500" : confidence >= 0.5 ? "bg-amber-500" : "bg-destructive"
+                    )}
+                    style={{ width: `${(confidence * 100).toFixed(0)}%` }}
+                  />
+                </div>
+                <span className="text-xs font-medium">{(confidence * 100).toFixed(0)}%</span>
+              </div>
+            </div>
+
+            {/* Classification source */}
+            <div>
+              <p className="text-xs font-medium text-muted-foreground mb-0.5">Classificado por</p>
+              <p className="text-xs">
+                {tx.classificationSource === "rule" ? "Regra automática" : tx.classificationSource === "ai" ? "IA (OpenAI)" : tx.classificationSource === "manual" ? "Manual" : "—"}
+              </p>
+            </div>
+
+            {/* Subcategory */}
+            <div>
+              <p className="text-xs font-medium text-muted-foreground mb-0.5">Subcategoria</p>
+              <input
+                type="text"
+                value={subcategory}
+                onChange={(e) => {
+                  setSubcategory(e.target.value)
+                  patchField("subcategory", e.target.value || null)
+                }}
+                placeholder="ex: mercado, ifood…"
+                className="w-full rounded-md border border-border bg-background px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+            </div>
+          </div>
+        </td>
+      </tr>
+    )}
+    </>
   )
 }
