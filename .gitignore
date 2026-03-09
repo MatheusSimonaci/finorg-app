@@ -54,3 +54,5 @@ prisma/*.db-journal
 prisma/*.db-shm
 prisma/*.db-wal
 prisma/*.bak*
+
+.vercel
