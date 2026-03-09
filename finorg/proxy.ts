@@ -1,10 +1,15 @@
 ﻿import { authkitMiddleware } from '@workos-inc/authkit-nextjs'
 
+// NEXT_PUBLIC_WORKOS_REDIRECT_URI is the canonical var read by the WorkOS SDK in
+// Edge Runtime. WORKOS_REDIRECT_URI is kept as fallback for server-side code.
+const redirectUri =
+  process.env.NEXT_PUBLIC_WORKOS_REDIRECT_URI ?? process.env.WORKOS_REDIRECT_URI
+
 export default authkitMiddleware({
-  redirectUri: process.env.NEXT_PUBLIC_WORKOS_REDIRECT_URI,
+  redirectUri,
   middlewareAuth: {
     enabled: true,
-    unauthenticatedPaths: ['/login', '/api/debug-auth'],
+    unauthenticatedPaths: ['/login'],
   },
 })
 

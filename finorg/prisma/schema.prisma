@@ -27,6 +27,8 @@ model Transaction {
   date                   DateTime
   description            String
   amount                 Decimal
+  quantity               Decimal? // shares / units / coins for investment transactions
+  unitPrice              Decimal? // price per unit in BRL
   accountId              String
   account                Account  @relation(fields: [accountId], references: [id])
   nature                 String?  // pessoal | empresa | work_tool | misto
