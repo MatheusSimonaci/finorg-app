@@ -1,0 +1,449 @@
+{
+  "config": {
+    "configFile": "C:\\Users\\Pichau\\Downloads\\AI\\meu-projeto\\finorg\\playwright.config.ts",
+    "rootDir": "C:/Users/Pichau/Downloads/AI/meu-projeto/finorg/tests",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/Pichau/Downloads/AI/meu-projeto/finorg/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "local",
+        "name": "local",
+        "testDir": "C:/Users/Pichau/Downloads/AI/meu-projeto/finorg/tests",
+        "testIgnore": [
+          "/e2e-production\\.spec\\.ts/"
+        ],
+        "testMatch": [
+          "/.*\\.spec\\.ts/"
+        ],
+        "timeout": 45000
+      },
+      {
+        "outputDir": "C:/Users/Pichau/Downloads/AI/meu-projeto/finorg/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "production",
+        "name": "production",
+        "testDir": "C:/Users/Pichau/Downloads/AI/meu-projeto/finorg/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "/e2e-production\\.spec\\.ts/"
+        ],
+        "timeout": 45000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "tests/results/report.json"
+        }
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "tests/results/html"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "runAgents": "none",
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.58.2",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "e2e-production.spec.ts",
+      "file": "e2e-production.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Production - Critical Flows",
+          "file": "e2e-production.spec.ts",
+          "line": 11,
+          "column": 6,
+          "specs": [
+            {
+              "title": "app loads without critical errors",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "production",
+                  "projectName": "production",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 45211,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 45000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 45000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 45000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Pichau\\Downloads\\AI\\meu-projeto\\finorg\\tests\\e2e-production.spec.ts",
+                            "column": 16,
+                            "line": 29
+                          },
+                          "message": "Error: page.waitForLoadState: Test timeout of 45000ms exceeded.\n\n\u001b[0m \u001b[90m 27 |\u001b[39m     \n \u001b[90m 28 |\u001b[39m     \u001b[90m// Wait for initial load\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 29 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForLoadState(\u001b[32m'networkidle'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m    |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 30 |\u001b[39m     \n \u001b[90m 31 |\u001b[39m     \u001b[90m// Check for fatal errors in console\u001b[39m\n \u001b[90m 32 |\u001b[39m     \u001b[36mconst\u001b[39m fatalErrors \u001b[33m=\u001b[39m errors\u001b[33m.\u001b[39mfilter(e \u001b[33m=>\u001b[39m \u001b[0m\n\u001b[2m    at C:\\Users\\Pichau\\Downloads\\AI\\meu-projeto\\finorg\\tests\\e2e-production.spec.ts:29:16\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T15:04:21.276Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Pichau\\Downloads\\AI\\meu-projeto\\finorg\\test-results\\e2e-production-Production--db53f-ads-without-critical-errors-production\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\Pichau\\Downloads\\AI\\meu-projeto\\finorg\\test-results\\e2e-production-Production--db53f-ads-without-critical-errors-production\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Pichau\\Downloads\\AI\\meu-projeto\\finorg\\test-results\\e2e-production-Production--db53f-ads-without-critical-errors-production\\error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "e7af93c98a5b3e4cd97b-2a8aca2dcd30190952ce",
+              "file": "e2e-production.spec.ts",
+              "line": 13,
+              "column": 7
+            },
+            {
+              "title": "auth flow - redirects to WorkOS login",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "production",
+                  "projectName": "production",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2055,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T15:05:08.892Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e7af93c98a5b3e4cd97b-c89ed2e5b8c7470c57d8",
+              "file": "e2e-production.spec.ts",
+              "line": 43,
+              "column": 7
+            },
+            {
+              "title": "API health - /api/health responds",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "production",
+                  "projectName": "production",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1408,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T15:05:11.120Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e7af93c98a5b3e4cd97b-1648ae8a8fee6cbc3bc6",
+              "file": "e2e-production.spec.ts",
+              "line": 59,
+              "column": 7
+            },
+            {
+              "title": "Prisma binary loads correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "production",
+                  "projectName": "production",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4681,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T15:05:12.545Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e7af93c98a5b3e4cd97b-b46f2ab25cc29808dd22",
+              "file": "e2e-production.spec.ts",
+              "line": 67,
+              "column": 7
+            }
+          ]
+        },
+        {
+          "title": "Production - Database Schema",
+          "file": "e2e-production.spec.ts",
+          "line": 91,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Transaction.quantity column exists (requires auth)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "location": {
+                        "file": "C:\\Users\\Pichau\\Downloads\\AI\\meu-projeto\\finorg\\tests\\e2e-production.spec.ts",
+                        "line": 93,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "production",
+                  "projectName": "production",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 0,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T15:05:17.244Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "location": {
+                            "file": "C:\\Users\\Pichau\\Downloads\\AI\\meu-projeto\\finorg\\tests\\e2e-production.spec.ts",
+                            "line": 93,
+                            "column": 8
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "e7af93c98a5b3e4cd97b-5eb2c31ef9095851c835",
+              "file": "e2e-production.spec.ts",
+              "line": 93,
+              "column": 8
+            }
+          ]
+        },
+        {
+          "title": "Production - Performance",
+          "file": "e2e-production.spec.ts",
+          "line": 104,
+          "column": 6,
+          "specs": [
+            {
+              "title": "initial page load < 5 seconds",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "production",
+                  "projectName": "production",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2183,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T15:05:17.244Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "e7af93c98a5b3e4cd97b-781ab267a44f10863563",
+              "file": "e2e-production.spec.ts",
+              "line": 106,
+              "column": 7
+            },
+            {
+              "title": "no memory leaks on navigation (basic check)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 45000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "production",
+                  "projectName": "production",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 45382,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 45000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 45000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 45000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "C:\\Users\\Pichau\\Downloads\\AI\\meu-projeto\\finorg\\tests\\e2e-production.spec.ts",
+                            "column": 18,
+                            "line": 125
+                          },
+                          "message": "Error: page.waitForLoadState: Test timeout of 45000ms exceeded.\n\n\u001b[0m \u001b[90m 123 |\u001b[39m     \u001b[36mfor\u001b[39m (\u001b[36mlet\u001b[39m i \u001b[33m=\u001b[39m \u001b[35m0\u001b[39m\u001b[33m;\u001b[39m i \u001b[33m<\u001b[39m \u001b[35m3\u001b[39m\u001b[33m;\u001b[39m i\u001b[33m++\u001b[39m) {\n \u001b[90m 124 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mreload()\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 125 |\u001b[39m       \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mwaitForLoadState(\u001b[32m'networkidle'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                  \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 126 |\u001b[39m     }\n \u001b[90m 127 |\u001b[39m     \n \u001b[90m 128 |\u001b[39m     \u001b[90m// If we got here without crashes, basic navigation is stable\u001b[39m\u001b[0m\n\u001b[2m    at C:\\Users\\Pichau\\Downloads\\AI\\meu-projeto\\finorg\\tests\\e2e-production.spec.ts:125:18\u001b[22m"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-03-09T15:05:19.456Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "C:\\Users\\Pichau\\Downloads\\AI\\meu-projeto\\finorg\\test-results\\e2e-production-Production--16835--on-navigation-basic-check--production\\test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "C:\\Users\\Pichau\\Downloads\\AI\\meu-projeto\\finorg\\test-results\\e2e-production-Production--16835--on-navigation-basic-check--production\\video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "C:\\Users\\Pichau\\Downloads\\AI\\meu-projeto\\finorg\\test-results\\e2e-production-Production--16835--on-navigation-basic-check--production\\error-context.md"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "e7af93c98a5b3e4cd97b-81bee1490b24823cfbe1",
+              "file": "e2e-production.spec.ts",
+              "line": 119,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-03-09T15:04:19.570Z",
+    "duration": 105653.352,
+    "expected": 4,
+    "skipped": 1,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}
