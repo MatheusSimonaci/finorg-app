@@ -1,0 +1,307 @@
+@import "tailwindcss";
+
+/* Class-based dark mode — next-themes with attribute="class" */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ══════════════════════════════════════════════════════════
+   FINORG APP — TACTICAL FINANCE SYSTEM
+   Theme: Dark Ops
+   ══════════════════════════════════════════════════════════ */
+
+:root {
+  /* FinOrg App — light mode */
+  --background:              #F5F1E6;
+  --card:                    #FFFCEE;
+  --popover:                 #FFFBE8;
+
+  --foreground:              #0A0A0C;
+  --card-foreground:         #0A0A0C;
+  --popover-foreground:      #0A0A0C;
+  --muted-foreground:        #7A7055;
+
+  --muted:                   #EDE8D2;
+  --secondary:               #EDE8D2;
+  --secondary-foreground:    #4A4330;
+  --accent:                  rgba(160, 120, 0, 0.12);
+  --accent-foreground:       #9A7000;
+  --input:                   #E4DDCA;
+
+  --sidebar:                 #FFFDEE;
+  --sidebar-foreground:      #0A0A0C;
+  --sidebar-accent:          rgba(160, 120, 0, 0.08);
+  --sidebar-muted:           #9A9070;
+  --sidebar-border:          rgba(0, 0, 0, 0.08);
+
+  --primary:                 #C49A00;
+  --primary-foreground:      #FFFFFF;
+
+  --destructive:             #C41C1C;
+  --destructive-foreground:  #FFFFFF;
+  --border:                  rgba(0, 0, 0, 0.1);
+  --ring:                    #C49A00;
+
+  --income:                  #1A7A50;
+  --expense:                 #C41C1C;
+  --investment:              #1060C0;
+  --reserve:                 #0845A0;
+  --warning:                 #B44E00;
+
+  --holo:                    transparent; /* only visible in dark mode */
+  --radius: 0.2rem;
+}
+
+/* ══════════════════════════════════════════
+   BATCAVE — DARK OPS MODE
+   ══════════════════════════════════════════ */
+.dark {
+  /* Batcave blacks — no pure black, slight blue tint like a monitor */
+  --background:              #04040A;
+  --card:                    #09090F;
+  --popover:                 #0E0E18;
+
+  /* Cold white text — like a high-contrast display */
+  --foreground:              #D8E0FF;
+  --card-foreground:         #D8E0FF;
+  --popover-foreground:      #D8E0FF;
+  --muted-foreground:        #7A80B8;
+
+  --muted:                   #0C0C16;
+  --secondary:               #0C0C16;
+  --secondary-foreground:    #707090;
+  --accent:                  rgba(245, 197, 24, 0.07);
+  --accent-foreground:       #F5C518;
+  --input:                   #10101C;
+
+  /* Batcomputer side panel */
+  --sidebar:                 #030308;
+  --sidebar-foreground:      #D8E0FF;
+  --sidebar-accent:          rgba(245, 197, 24, 0.06);
+  --sidebar-muted:           #7A80B8;
+  --sidebar-border:          rgba(245, 197, 24, 0.08);
+
+  /* FinOrg Yellow — brand accent */
+  --primary:                 #F5C518;
+  --primary-foreground:      #080600;
+
+  --destructive:             #FF2D2D;
+  --destructive-foreground:  #FFFFFF;
+  --border:                  rgba(245, 197, 24, 0.08);
+  --ring:                    rgba(245, 197, 24, 0.5);
+
+  /* Tactical color codes */
+  --income:                  #00D884;   /* confirm green */
+  --expense:                 #FF2D2D;   /* alert red */
+  --investment:              #00AAFF;   /* data stream blue */
+  --reserve:                 #0077DD;   /* stable blue */
+  --warning:                 #FF7700;   /* amber alert */
+
+  --radius: 0.2rem;
+  --holo:    #00C8FF;   /* system holographic cyan */
+}
+
+/* ══════════════════════════════════════════
+   TAILWIND V4 — TOKEN → UTILITY MAPPING
+   ══════════════════════════════════════════ */
+@theme inline {
+  --font-sans:                     var(--font-geist-sans);
+  --font-mono:                     var(--font-geist-mono);
+
+  --color-background:              var(--background);
+  --color-foreground:              var(--foreground);
+  --color-card:                    var(--card);
+  --color-card-foreground:         var(--card-foreground);
+  --color-popover:                 var(--popover);
+  --color-popover-foreground:      var(--popover-foreground);
+  --color-primary:                 var(--primary);
+  --color-primary-foreground:      var(--primary-foreground);
+  --color-secondary:               var(--secondary);
+  --color-secondary-foreground:    var(--secondary-foreground);
+  --color-muted:                   var(--muted);
+  --color-muted-foreground:        var(--muted-foreground);
+  --color-accent:                  var(--accent);
+  --color-accent-foreground:       var(--accent-foreground);
+  --color-destructive:             var(--destructive);
+  --color-destructive-foreground:  var(--destructive-foreground);
+  --color-border:                  var(--border);
+  --color-input:                   var(--input);
+  --color-ring:                    var(--ring);
+
+  --color-sidebar:                 var(--sidebar);
+  --color-sidebar-foreground:      var(--sidebar-foreground);
+  --color-sidebar-muted:           var(--sidebar-muted);
+  --color-sidebar-accent:          var(--sidebar-accent);
+  --color-sidebar-border:          var(--sidebar-border);
+
+  --color-income:                  var(--income);
+  --color-expense:                 var(--expense);
+  --color-investment:              var(--investment);
+  --color-reserve:                 var(--reserve);
+  --color-warning:                 var(--warning);
+  --color-holo:                    var(--holo);
+
+  --radius-sm:   0.1rem;
+  --radius-md:   var(--radius);
+  --radius-lg:   calc(var(--radius) + 4px);
+  --radius-xl:   calc(var(--radius) + 6px);
+  --radius-2xl:  calc(var(--radius) + 10px);
+}
+
+/* ══════════════════════════════════════════
+   BASE STYLES
+   ══════════════════════════════════════════ */
+@layer base {
+  * {
+    border-color: var(--border);
+    outline-color: var(--ring);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* ── Batcomputer tactical display background ── */
+  .dark body {
+    background-image:
+      /* Bat-signal glow — cold top-center radial */
+      radial-gradient(ellipse 80% 35% at 50% -2%, rgba(245, 197, 24, 0.055) 0%, transparent 70%),
+      /* Tactical dot grid — every 28px */
+      radial-gradient(circle, rgba(245, 197, 24, 0.04) 1px, transparent 1px);
+    background-size: 100% 100%, 28px 28px;
+    background-attachment: fixed;
+    background-position: 0 0, 14px 14px;
+  }
+
+  /* ── Tactical panel cards — carbon fiber + top highlight ── */
+  .dark .bg-card {
+    background-image:
+      linear-gradient(to bottom, rgba(245, 197, 24, 0.04) 0%, rgba(245, 197, 24, 0) 30px),
+      repeating-linear-gradient( 45deg, rgba(255,255,255,0.011) 0px, rgba(255,255,255,0.011) 1px, transparent 1px, transparent 6px),
+      repeating-linear-gradient(-45deg, rgba(255,255,255,0.011) 0px, rgba(255,255,255,0.011) 1px, transparent 1px, transparent 6px);
+  }
+
+  /* ── Scrollbar — batcomputer style ── */
+  ::-webkit-scrollbar         { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track   { background: transparent; }
+  ::-webkit-scrollbar-thumb   { background: rgba(245, 197, 24, 0.2); border-radius: 0; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(245, 197, 24, 0.45); }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FINORG APP — TACTICAL SYSTEM EFFECTS
+═══════════════════════════════════════════════════════════════ */
+
+/* ─── Keyframes ────────────────────────────────────────── */
+@keyframes holo-pulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(0,200,255,0.12), 0 0 20px rgba(0,200,255,0.04), inset 0 0 12px rgba(0,200,255,0.02); }
+  50%       { box-shadow: 0 0 18px rgba(0,200,255,0.30), 0 0 44px rgba(0,200,255,0.10), inset 0 0 24px rgba(0,200,255,0.06); }
+}
+
+/* Holographic radar sweep from top to bottom */
+@keyframes holo-scan {
+  0%   { top: 0;    opacity: 0; }
+  6%   { opacity: 0.9; }
+  94%  { opacity: 0.4; }
+  100% { top: 100%; opacity: 0; }
+}
+
+/* Occasional display flicker — like a compromised feed */
+@keyframes holo-flicker {
+  0%, 82%, 100% { opacity: 1;    }
+  83%           { opacity: 0.72; }
+  84%           { opacity: 1;    }
+  85%           { opacity: 0.82; }
+  86%           { opacity: 1;    }
+}
+
+/* Data materialize — elements boot into view */
+@keyframes data-boot {
+  0%   { opacity: 0; transform: translateY(8px); filter: blur(4px); }
+  100% { opacity: 1; transform: translateY(0);   filter: blur(0);   }
+}
+
+/* Batcomputer status ticker */
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* CRT scan lines overlay */
+.dark body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.048) 0px,
+    rgba(0, 0, 0, 0.048) 1px,
+    transparent           1px,
+    transparent           4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: overlay;
+}
+
+/* ─── Holographic Panel ─────────────────────────────── */
+.dark .holo-card {
+  border-color: rgba(0, 200, 255, 0.22) !important;
+  animation: holo-pulse 5s ease-in-out infinite;
+  background-image:
+    /* system edge glows */
+    radial-gradient(ellipse at 5% 5%,   rgba(0,200,255,0.07) 0%, transparent 48%),
+    radial-gradient(ellipse at 95% 95%, rgba(0,200,255,0.05) 0%, transparent 48%),
+    /* Circuit dot grid — tighter than the body grid */
+    radial-gradient(circle, rgba(0,200,255,0.075) 1px, transparent 1px),
+    /* brand yellow top gradient */
+    linear-gradient(to bottom, rgba(245, 197, 24, 0.05) 0%, rgba(245, 197, 24, 0) 28px),
+    /* Carbon fiber weave */
+    repeating-linear-gradient( 45deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 6px),
+    repeating-linear-gradient(-45deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 6px);
+  background-size: 100% 100%, 100% 100%, 20px 20px, 100% 100%, 6px 6px, 6px 6px;
+}
+
+/* ─── Holographic Radar Sweep ────────────────────── */
+.holo-scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(0,200,255,0.45) 25%,
+    rgba(0,200,255,0.90) 50%,
+    rgba(0,200,255,0.45) 75%,
+    transparent 100%
+  );
+  box-shadow: 0 0 6px rgba(0,200,255,0.6), 0 0 12px rgba(0,200,255,0.3);
+  animation: holo-scan 5.5s linear infinite;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ─── Data Number Glows ────────────────────────── */
+.dark .income-glow   { text-shadow: 0 0 8px rgba(0,216,132,0.60), 0 0 24px rgba(0,216,132,0.22); }
+.dark .expense-glow  { text-shadow: 0 0 8px rgba(255,45,45,0.60),  0 0 24px rgba(255,45,45,0.22);  }
+.dark .invest-glow   { text-shadow: 0 0 8px rgba(0,170,255,0.60),  0 0 24px rgba(0,170,255,0.22);  }
+.dark .reserve-glow  { text-shadow: 0 0 8px rgba(0,119,221,0.60),  0 0 24px rgba(0,119,221,0.22);  }
+.dark .primary-glow  { text-shadow: 0 0 8px rgba(245,197,24,0.70), 0 0 28px rgba(245,197,24,0.28); }
+
+/* ─── Boot & Flicker Animations ─────────────────── */
+.data-boot-anim { animation: data-boot 0.65s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.data-flicker   { animation: holo-flicker 14s ease-in-out infinite; }
+
+/* ─── Batcomputer Status Ticker ─────────────────── */
+.ticker-track { overflow: hidden; }
+.ticker-inner {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  gap: 0;
+  animation: ticker-scroll 38s linear infinite;
+  will-change: transform;
+}
+.ticker-inner:hover { animation-play-state: paused; }

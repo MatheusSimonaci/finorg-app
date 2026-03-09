@@ -1,0 +1,224 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider      = "prisma-client"
+  output        = "../app/generated/prisma"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id           String        @id @default(cuid())
+  name         String
+  institution  String        // nubank | xp | bitybank | outro
+  type         String        // checking | investment | crypto
+  transactions Transaction[]
+  assets       Asset[]
+  createdAt    DateTime      @default(now())
+}
+
+model Transaction {
+  id                     String   @id @default(cuid())
+  date                   DateTime
+  description            String
+  amount                 Decimal
+  accountId              String
+  account                Account  @relation(fields: [accountId], references: [id])
+  nature                 String?  // pessoal | empresa | work_tool | misto
+  category               String?
+  subcategory            String?
+  type                   String?  // gasto | investimento | reserva | receita | transferencia
+  confidence             Float?
+  reasoning              String?
+  isReimbursable         Boolean  @default(false)
+  classificationOverride Boolean  @default(false)
+  classificationSource   String?  // rule | ai | manual
+  reviewStatus           String   @default("pending") // pending | approved | overridden
+  importBatchId          String?
+  rawData                String?
+  hash                   String   @unique
+  createdAt              DateTime @default(now())
+}
+
+model ClassificationRule {
+  id          String   @id @default(cuid())
+  pattern     String
+  nature      String
+  category    String
+  type        String?
+  subcategory String?
+  source      String   @default("user") // user | system
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+model Asset {
+  id           String          @id @default(cuid())
+  name         String
+  type         String          // tesouro | cdb | lci | fii | acoes | cripto | previdencia | fundo | conta_remunerada
+  subtype      String?
+  institution  String
+  currentValue Decimal         @default(0)
+  lastUpdated  DateTime        @default(now())
+  purpose      String          @default("personal") // personal | business | reserve | dream
+  dreamId      String?
+  dream        Dream?          @relation(fields: [dreamId], references: [id])
+  active       Boolean         @default(true)
+  accountId    String?
+  account      Account?        @relation(fields: [accountId], references: [id])
+  snapshots    AssetSnapshot[]
+  createdAt    DateTime        @default(now())
+}
+
+model AssetSnapshot {
+  id        String   @id @default(cuid())
+  assetId   String
+  asset     Asset    @relation(fields: [assetId], references: [id])
+  month     String   // YYYY-MM
+  value     Decimal
+  createdAt DateTime @default(now())
+
+  @@unique([assetId, month])
+}
+
+model AllocationTarget {
+  id        String   @id @default(cuid())
+  assetType String
+  targetPct Float
+  mode      String   @default("normal") // normal | sonho_ativo | rebalanceando
+  createdAt DateTime @default(now())
+
+  @@unique([assetType, mode])
+}
+
+model Dream {
+  id            String    @id @default(cuid())
+  name          String
+  targetAmount  Decimal
+  targetDate    DateTime?
+  priorityOrder Int
+  status        String    @default("planejando") // planejando | acumulando | realizado | arquivado
+  achievedAt    DateTime?
+  archivedAt    DateTime?
+  notes         String?
+  assets        Asset[]
+  rebalancingSnapshots DreamRebalancingSnapshot[]
+  createdAt     DateTime  @default(now())
+}
+
+model DreamRebalancingSnapshot {
+  id           String   @id @default(cuid())
+  dreamId      String
+  dream        Dream    @relation(fields: [dreamId], references: [id])
+  assetType    String
+  deviationPct Float
+  createdAt    DateTime @default(now())
+}
+
+model Budget {
+  id                String   @id @default(cuid())
+  category          String
+  targetPct         Float
+  alertThresholdPct Float    @default(80)
+  monthOverride     String?  // YYYY-MM, null = todos os meses
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model EmergencyReserveConfig {
+  id                      String   @id @default(cuid())
+  targetMonths            Int      @default(4)
+  calculationWindowMonths Int      @default(3)
+  excludeOutliers         Boolean  @default(false)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+}
+
+model AppConfig {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RecurringExpense {
+  id                 String    @id @default(cuid())
+  name               String
+  type               String    // installment | seasonal
+  amount             Decimal
+  category           String
+  totalInstallments  Int?
+  currentInstallment Int?
+  startDate          DateTime?
+  monthOfYear        Int?      // 1-12 for seasonal
+  active             Boolean   @default(true)
+  notes              String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+model SnoozedAlert {
+  id           String   @id @default(cuid())
+  alertKey     String   @unique
+  reason       String?
+  snoozedUntil DateTime
+  createdAt    DateTime @default(now())
+}
+
+model ImportBatch {
+  id         String   @id @default(cuid())
+  fileName   String
+  bank       String
+  imported   Int      @default(0)
+  duplicates Int      @default(0)
+  errors     Int      @default(0)
+  tokensUsed Int?
+  costBRL    Float?
+  status     String   @default("imported") // imported | classifying | classified | confirmed
+  createdAt  DateTime @default(now())
+}
+
+model ProjectionParams {
+  id            String   @id @default(cuid())
+  assetCategory String   @unique
+  annualRate    Float
+  irRate        Float
+  updatedAt     DateTime @updatedAt
+}
+
+model GlobalParams {
+  id            String   @id @default("singleton")
+  inflationRate Float    @default(0.045)
+  updatedAt     DateTime @updatedAt
+}
+
+model SnapshotSettings {
+  id              String   @id @default("singleton")
+  privacyMode     String   @default("public") // public | protected
+  passwordHash    String?
+  maskValues      Boolean  @default(false)
+  vercelTokenEnc  String?
+  lastDeployUrl   String?
+  lastDeployedAt  DateTime?
+  updatedAt       DateTime @updatedAt
+}
+
+// ─── Identity & Billing (WorkOS + future Stripe) ───
+
+model User {
+  id               String   @id @default(cuid())
+  workosId         String   @unique
+  email            String   @unique
+  name             String?
+  avatarUrl        String?
+  subscriptionTier String   @default("free") // free | pro
+  stripeCustomerId String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
