@@ -9,7 +9,7 @@ export default authkitMiddleware({
   redirectUri,
   middlewareAuth: {
     enabled: true,
-    unauthenticatedPaths: ['/login'],
+    unauthenticatedPaths: ['/login', '/callback', '/sign-out'],
   },
 })
 
