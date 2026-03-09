@@ -29,8 +29,7 @@ const BCRYPTJS_CDN = 'https://unpkg.com/bcryptjs@2.4.3/dist/bcrypt.js'
 function buildCSS(): string {
   return `
 /* ═══════════════════════════════════════════════════════
-   WAYNE INDUSTRIES — MOBILE TACTICAL DISPLAY
-   Batman: Arkham Knight Edition
+   FINORG APP — MOBILE TACTICAL DISPLAY
    ═══════════════════════════════════════════════════════ */
 :root {
   --bg:           #04040A;
@@ -320,9 +319,9 @@ function tabDreams(d: SnapshotData): string {
 function lockScreen(passwordHash: string): string {
   return `
   <div id="lock-overlay" class="lock-overlay">
-    <div class="lock-badge">🦇</div>
-    <div class="lock-title">Wayne Industries</div>
-    <div style="font-size:9px;letter-spacing:.2em;color:rgba(0,200,255,0.5);text-transform:uppercase;font-family:monospace">Acesso Restrito · Batcaverna</div>
+    <div class="lock-badge">🔒</div>
+    <div class="lock-title">FinOrg App</div>
+    <div style="font-size:9px;letter-spacing:.2em;color:rgba(0,200,255,0.5);text-transform:uppercase;font-family:monospace">Acesso Restrito · Documento Privado</div>
     <div class="lock-sub">Relatório financeiro protegido.<br>Autorização necessária para continuar.</div>
     <input id="lock-pw" class="lock-input" type="password" placeholder="••••••••" autocomplete="current-password" />
     <button class="lock-btn" id="lock-submit">Autenticar</button>
@@ -352,8 +351,8 @@ function lockScreen(passwordHash: string): string {
 export function buildSnapshotHTML(data: SnapshotData, passwordHash?: string): string {
   const ts = fmtDatetime(data.generatedAt)
   const lock = passwordHash ? lockScreen(passwordHash) : ''
-  const privacyWarning = `<div class="privacy-banner">▸ Documento de uso restrito — Wayne Industries · Batcaverna. Não compartilhe este snapshot sem autorização.</div>`
-  const tickerText = `BCv.978 <span class="ticker-sep">▸</span> USUÁRIO: B.WAYNE <span class="ticker-sep">▸</span> MODO: TÁTICO <span class="ticker-sep">▸</span> ENC: AES-256-Q <span class="ticker-sep">▸</span> PROTOCOLO: ARKHAM <span class="ticker-sep">▸</span> SNAPSHOT: ${data.month} <span class="ticker-sep">▸</span> WAYNE IND. — CONFIDENCIAL <span class="ticker-sep">▸</span> STATUS: AUTORIZADO <span class="ticker-sep">▸</span> BATCOMPUTER: ONLINE <span class="ticker-sep">▸</span>&nbsp;`
+  const privacyWarning = `<div class="privacy-banner">▸ Documento de uso restrito — FinOrg App. Não compartilhe este snapshot sem autorização.</div>`
+  const tickerText = `BCv.978 <span class="ticker-sep">▸</span> STATUS: ATIVO <span class="ticker-sep">▸</span> MODO: TÁTICO <span class="ticker-sep">▸</span> ENC: AES-256-Q <span class="ticker-sep">▸</span> PROTOCOLO: SEGURO <span class="ticker-sep">▸</span> SNAPSHOT: ${data.month} <span class="ticker-sep">▸</span> FINORG APP — CONFIDENCIAL <span class="ticker-sep">▸</span> STATUS: AUTORIZADO <span class="ticker-sep">▸</span> SISTEMA: ONLINE <span class="ticker-sep">▸</span>&nbsp;`
 
   return `<!DOCTYPE html>
 <html lang="pt-BR">
@@ -376,7 +375,7 @@ ${lock}
     <div class="header-inner">
       <div class="header-brand">
         <div class="header-logo">FINORG</div>
-        <div class="header-sub">Wayne Industries</div>
+        <div class="header-sub">FinOrg App</div>
       </div>
       <div class="header-ts">${data.month}<br>${ts}</div>
     </div>

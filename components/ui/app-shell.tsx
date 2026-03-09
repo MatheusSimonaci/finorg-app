@@ -16,6 +16,7 @@ import {
   Moon,
   Sun,
   Shield,
+  LogOut,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -94,7 +95,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {/* Yellow accent top line */}
         <div className="h-px bg-primary/40" />
 
-        {/* Logo — Wayne Industries */}
+        {/* Logo — FinOrg App */}
         <div className="flex items-center gap-3 px-5 pt-5 pb-4">
           <div className="flex items-center justify-center w-8 h-8 rounded bg-primary/10 border border-primary/30 text-primary flex-shrink-0">
             <Shield className="h-4 w-4" />
@@ -104,7 +105,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               FINORG
             </span>
             <span className="block text-[9px] text-sidebar-muted leading-none tracking-[0.12em] uppercase">
-              Wayne Industries
+              FinOrg App
             </span>
           </div>
         </div>
@@ -154,6 +155,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               Sistema Online
             </span>
           </div>
+
+          <Link
+            href="/sign-out"
+            className="flex items-center gap-3 px-3 py-2 rounded text-sm font-medium text-sidebar-muted hover:text-destructive hover:bg-destructive/10 transition-all duration-150"
+          >
+            <LogOut className="h-4 w-4 flex-shrink-0" />
+            Sair
+          </Link>
         </div>
       </aside>
 
@@ -167,7 +176,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
             <div className="flex flex-col">
               <span className="text-xs font-bold text-primary tracking-[0.18em] uppercase leading-none">FINORG</span>
-              <span className="text-[8px] text-muted-foreground tracking-[0.1em] uppercase leading-none">Wayne Industries</span>
+              <span className="text-[8px] text-muted-foreground tracking-[0.1em] uppercase leading-none">FinOrg App</span>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -190,7 +199,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        {/* ─── Batcomputer Status Ticker ─── */}
+        {/* ─── Status Ticker ─── */}
         <div className="hidden dark:flex border-b border-border/40 h-6 items-center bg-card/40 flex-shrink-0 ticker-track">
           <div className="ticker-inner font-mono text-[8px] tracking-[0.16em] uppercase select-none">
             {[0, 1].map((i) => (
@@ -199,19 +208,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <span className="text-primary/25">&#9656;</span>
                 <span>ENC: AES-256-Q</span>
                 <span className="text-primary/25">&#9656;</span>
-                <span>BATCOMPUTER: ONLINE</span>
+                <span>SISTEMA: ONLINE</span>
                 <span className="text-primary/25">&#9656;</span>
                 <span className="text-primary/45">STATUS: AUTORIZADO</span>
                 <span className="text-primary/25">&#9656;</span>
-                <span>USUÁRIO: B.WAYNE</span>
+                <span>FINANÇAS PESSOAIS</span>
                 <span className="text-primary/25">&#9656;</span>
                 <span>MODO: TÁTICO</span>
                 <span className="text-primary/25">&#9656;</span>
-                <span>PROTOCOLO: ARKHAM</span>
+                <span>PROTOCOLO: SEGURO</span>
                 <span className="text-primary/25">&#9656;</span>
-                <span className="text-primary/38">WAYNE IND. — CONFIDENCIAL</span>
+                <span className="text-primary/38">FINORG APP — PRIVADO</span>
                 <span className="text-primary/25">&#9656;</span>
-                <span>GOTHAM CITY • BATCAVERNA</span>
+                <span>SISTEMA FINANCEIRO</span>
                 <span className="text-primary/25">&#9656;</span>
               </span>
             ))}

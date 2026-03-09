@@ -4,13 +4,12 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ══════════════════════════════════════════════════════════
-   WAYNE INDUSTRIES TACTICAL FINANCE SYSTEM
-   Brand ref: https://brand.aioxsquad.ai/
-   Theme: Batcomputer — Dark Ops
+   FINORG APP — TACTICAL FINANCE SYSTEM
+   Theme: Dark Ops
    ══════════════════════════════════════════════════════════ */
 
 :root {
-  /* Wayne Industries — daytime HQ mode */
+  /* FinOrg App — light mode */
   --background:              #F5F1E6;
   --card:                    #FFFCEE;
   --popover:                 #FFFBE8;
@@ -80,7 +79,7 @@
   --sidebar-muted:           #7A80B8;
   --sidebar-border:          rgba(245, 197, 24, 0.08);
 
-  /* Wayne Yellow — the bat-signal */
+  /* FinOrg Yellow — brand accent */
   --primary:                 #F5C518;
   --primary-foreground:      #080600;
 
@@ -97,7 +96,7 @@
   --warning:                 #FF7700;   /* amber alert */
 
   --radius: 0.2rem;
-  --holo:    #00C8FF;   /* Batcomputer holographic cyan */
+  --holo:    #00C8FF;   /* system holographic cyan */
 }
 
 /* ══════════════════════════════════════════
@@ -191,7 +190,7 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   BATMAN: ARKHAM KNIGHT — TACTICAL SYSTEM EFFECTS
+   FINORG APP — TACTICAL SYSTEM EFFECTS
 ═══════════════════════════════════════════════════════════════ */
 
 /* ─── Keyframes ────────────────────────────────────────── */
@@ -251,12 +250,12 @@
   border-color: rgba(0, 200, 255, 0.22) !important;
   animation: holo-pulse 5s ease-in-out infinite;
   background-image:
-    /* Batcomputer edge glows */
+    /* system edge glows */
     radial-gradient(ellipse at 5% 5%,   rgba(0,200,255,0.07) 0%, transparent 48%),
     radial-gradient(ellipse at 95% 95%, rgba(0,200,255,0.05) 0%, transparent 48%),
     /* Circuit dot grid — tighter than the body grid */
     radial-gradient(circle, rgba(0,200,255,0.075) 1px, transparent 1px),
-    /* Wayne yellow top gradient */
+    /* brand yellow top gradient */
     linear-gradient(to bottom, rgba(245, 197, 24, 0.05) 0%, rgba(245, 197, 24, 0) 28px),
     /* Carbon fiber weave */
     repeating-linear-gradient( 45deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 6px),
