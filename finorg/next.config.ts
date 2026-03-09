@@ -8,7 +8,10 @@ const nextConfig: NextConfig = {
     root: __dirname,
   },
   outputFileTracingIncludes: {
-    "/**": ["./app/generated/prisma/**"],
+    "/**": [
+      "./app/generated/prisma/**/*",
+      "./app/generated/prisma/**",
+    ],
   },
   // Disable source maps in production to reduce build memory usage
   productionBrowserSourceMaps: false,

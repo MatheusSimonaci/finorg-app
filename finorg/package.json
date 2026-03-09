@@ -14,7 +14,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@libsql/client": "^0.17.0",
-    "@prisma/adapter-libsql": "^7.4.2",
+    "@prisma/adapter-libsql": "^6.19.2",
     "@prisma/client": "^6.5.0",
     "@types/bcryptjs": "^2.4.6",
     "@workos-inc/authkit-nextjs": "^2.15.0",
