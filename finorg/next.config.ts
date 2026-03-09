@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+const isProd = process.env.NODE_ENV === "production";
+
 const nextConfig: NextConfig = {
   reactCompiler: true,
   turbopack: {
@@ -8,6 +10,13 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/**": ["./app/generated/prisma/**"],
   },
+  // Disable source maps in production to reduce build memory usage
+  productionBrowserSourceMaps: false,
+  ...(isProd && {
+    compiler: {
+      removeConsole: { exclude: ["error"] },
+    },
+  }),
 };
 
 export default nextConfig;
