@@ -17,6 +17,7 @@ import {
   Sun,
   Shield,
   LogOut,
+  User,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -77,7 +78,9 @@ function NavItem({
   )
 }
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+type AppUser = { name: string | null; email: string; avatarUrl: string | null } | null
+
+export function AppShell({ children, user }: { children: React.ReactNode; user?: AppUser }) {
   const pathname = usePathname()
   const { resolvedTheme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
@@ -148,13 +151,36 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             {isDark ? 'Modo claro' : 'Modo escuro'}
           </button>
 
-          {/* SISTEMA ONLINE indicator */}
-          <div className="flex items-center gap-2 px-3 pt-2 pb-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-income animate-pulse flex-shrink-0" />
-            <span className="text-[9px] tracking-[0.15em] uppercase text-sidebar-muted">
-              Sistema Online
-            </span>
-          </div>
+          {/* User info */}
+          {user ? (
+            <div className="flex items-center gap-2.5 px-3 py-2 rounded bg-sidebar-accent/40 border border-sidebar-border/50">
+              {user.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={user.avatarUrl}
+                  alt={user.name ?? user.email}
+                  className="w-7 h-7 rounded-full object-cover flex-shrink-0 border border-sidebar-border"
+                />
+              ) : (
+                <div className="w-7 h-7 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center flex-shrink-0">
+                  <User className="h-3.5 w-3.5 text-primary" />
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <p className="text-[11px] font-medium text-sidebar-foreground truncate leading-none mb-0.5">
+                  {user.name ?? user.email}
+                </p>
+                <p className="text-[9px] text-sidebar-muted truncate leading-none">{user.email}</p>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 px-3 pt-2 pb-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-income animate-pulse flex-shrink-0" />
+              <span className="text-[9px] tracking-[0.15em] uppercase text-sidebar-muted">
+                Modo Dev
+              </span>
+            </div>
+          )}
 
           <Link
             href="/sign-out"
