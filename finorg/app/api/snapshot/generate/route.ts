@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma as db } from '@/lib/db'
 import { generateSnapshot, defaultSnapshotDir } from '@/lib/snapshot/generator'
-import { decryptToken } from '@/lib/security/token-store'
 
 export async function POST() {
   try {

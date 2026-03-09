@@ -17,10 +17,12 @@ export type NormalizedRow = {
   description: string
   amount: number     // positive = credit, negative = debit
   rawData: string
+  quantity?: number  // units / shares / coins
+  unitPrice?: number // price per unit in BRL
 }
 
 type LLMResult =
-  | { ok: true; transactions: NormalizedRow[]; bankName: string }
+  | { ok: true; transactions: NormalizedRow[]; bankName: string; closingBalanceBRL?: number }
   | { ok: false; error: string }
 
 async function getApiKey(): Promise<string | null> {
@@ -33,37 +35,63 @@ const SYSTEM_PROMPT = `
 Você é um parser financeiro universal.
 
 Receberá linhas de qualquer arquivo financeiro (extrato bancário, fatura de cartão,
-plataforma de investimentos, corretora, criptomoedas, etc.) de qualquer banco ou
-instituição brasileira ou estrangeira.
+plataforma de investimentos, corretora, exchange de criptomoedas, etc.) de qualquer
+banco ou instituição brasileira ou estrangeira.
 
 Sua tarefa: identificar TODOS os registros financeiros e convertê-los ao formato
-normalizado abaixo. Também identifique o banco/plataforma de origem.
+normalizado abaixo. Também identifique o banco/plataforma e o saldo final em BRL.
 
 RETORNE APENAS JSON VÁLIDO, sem markdown, sem explicações fora do JSON.
 
 Formato de sucesso:
 {
   "ok": true,
-  "bankName": "nome do banco ou plataforma (ex: Nubank, XP Investimentos, Itaú, Binance)",
+  "bankName": "nome do banco ou plataforma (ex: Nubank, XP Investimentos, Itaú, Bitpreco)",
+  "closingBalanceBRL": 0.00,
   "transactions": [
     {
       "date": "YYYY-MM-DD",
-      "description": "descrição curta do lançamento",
+      "description": "descrição curta",
       "amount": 0.00,
+      "quantity": null,
+      "unitPrice": null,
       "rawData": "linha original como JSON.stringify'd"
     }
   ]
 }
 
-REGRAS:
-1. date sempre "YYYY-MM-DD".
-2. amount: crédito/entrada = positivo; débito/saída = negativo.
-   Se houver colunas separadas de Crédito e Débito: amount = credito > 0 ? credito : -debito.
-3. Ignore linhas de rodapé, totais, cabeçalhos repetidos, linhas totalmente vazias.
-4. Para arquivos de posição de portfólio (sem data de transação): use referenceDate e
-   coluna "Posição" ou "Valor" como amount positivo; description = "Posição {ticker/nome}".
-5. Se for absolutamente impossível extrair qualquer transação financeira, retorne:
-   { "ok": false, "error": "motivo claro em português" }
+REGRAS CRÍTICAS:
+
+1. FORMATO BRASILEIRO: vírgula = decimal, ponto = milhar.
+   "100,00" = 100.00 | "1.500,00" = 1500.00 | "492.620,73" = 492620.73
+
+2. date sempre "YYYY-MM-DD". "28/12/2025" → "2025-12-28".
+
+3. amount: crédito/entrada/depósito = positivo; débito/saída/compra = negativo.
+   Colunas separadas Crédito/Débito: amount = credito > 0 ? credito : -debito.
+
+4. EXCHANGES DE CRIPTO (Bitpreco, Binance, Mercado Bitcoin, etc.):
+   - Arquivos podem ter seção de saldos de moedas ANTES das transações — ignore zeros.
+   - Saldo NÃO ZERADO de cripto (ex: BTC 0,00196695): crie transação com
+     date=referenceDate, description="Posição BTC: 0.00196695", amount=0,
+     quantity=0.00196695, unitPrice=null.
+   - DEPÓSITO BRL: amount = valor positivo.
+   - COMPRA de cripto: amount = Total R$ negativo, quantity = qtd comprada,
+     unitPrice = preço unitário em R$.
+   - VENDA de cripto: amount = Total R$ positivo, quantity = qtd vendida, unitPrice = preço.
+   - SAQUE BRL: amount = negativo.
+
+5. POSIÇÕES DE INVESTIMENTO (XP, fundos, ações, FIIs):
+   Para cada ativo, crie uma transação:
+   date=referenceDate, description="Posição {TICKER}", amount=valor total BRL,
+   quantity=cotas/ações, unitPrice=preço unitário.
+
+6. Ignore linhas de rodapé, totais, cabeçalhos repetidos, linhas vazias.
+
+7. closingBalanceBRL: saldo final em BRL declarado. Só BRL, sem converter cripto. null se ausente.
+
+8. Se impossível extrair qualquer transação:
+   { "ok": false, "error": "motivo em português" }
 `.trim()
 
 /**
@@ -71,6 +99,52 @@ REGRAS:
  * @param rows           2-D string array (all rows, all columns)
  * @param referenceDate  "YYYY-MM-DD" fallback date for portfolio/snapshot files
  */
+
+/**
+ * Intelligently selects rows to send to the LLM.
+ * Files like Bitpreco list ~200 zero-balance coins before any transactions,
+ * so a naive `slice(0, 60)` would never reach the actual transaction data.
+ *
+ * Strategy:
+ * - Always keep the first 5 rows (bank/platform identification)
+ * - Keep rows that look like section headers (multi-word first cell)
+ * - Keep rows with 2+ non-empty, non-zero cells (balance entries or transaction rows)
+ * - Keep rows whose first cell looks like a date
+ * - Skip purely empty rows
+ * - Cap at 100 rows for token budget
+ */
+function smartSampleRows(rows: string[][], maxRows = 100): string[][] {
+  const dateRe = /\d{2}[\/\-]\d{2}[\/\-]\d{4}/
+  const result: string[][] = []
+  const seen = new Set<string>()
+
+  // Always include first 5 rows
+  for (const row of rows.slice(0, 5)) {
+    const key = row.join("|")
+    if (!seen.has(key)) { seen.add(key); result.push(row) }
+  }
+
+  for (const row of rows.slice(5)) {
+    if (result.length >= maxRows) break
+    const first = row[0]?.trim().replace(/\r$/, "") ?? ""
+    const nonEmpty = row.filter(c => c.trim().replace(/\r$/, "") !== "" && c.trim() !== "0").length
+
+    // Skip fully empty rows
+    if (nonEmpty === 0 && !first) continue
+
+    // Include: date in first column
+    if (dateRe.test(first)) { result.push(row); continue }
+
+    // Include: section title or column header (first cell is a multi-word/multi-char string)
+    if (first.length > 4 && !/^[A-Z0-9]+$/.test(first)) { result.push(row); continue }
+
+    // Include: row has 2+ meaningful cells (non-zero balance or transaction data)
+    if (nonEmpty >= 2) { result.push(row); continue }
+  }
+
+  return result
+}
+
 export async function mapFileWithLLM(
   rows: string[][],
   referenceDate: string
@@ -80,8 +154,10 @@ export async function mapFileWithLLM(
     return { ok: false, error: "OPENAI_API_KEY não configurada. Configure em Configurações → IA." }
   }
 
-  // Send at most 60 rows to keep token count low; always include first row (potential header)
-  const sample = rows.slice(0, 60)
+  // Smart row sampling: always include first 5 rows (bank ID) + rows likely to contain
+  // transaction data. This prevents truncation on files with large balance-listing sections
+  // (e.g. Bitpreco which lists ~200 crypto balances before the transaction section).
+  const sample = smartSampleRows(rows)
 
   const userMessage = JSON.stringify({
     referenceDate,
@@ -121,20 +197,23 @@ export async function mapFileWithLLM(
 
   if (p.ok === true && Array.isArray(p.transactions)) {
     const bankName = String(p.bankName ?? "outros").trim() || "outros"
+    const closingBalanceBRL = typeof p.closingBalanceBRL === "number" ? p.closingBalanceBRL : undefined
     const transactions: NormalizedRow[] = []
     for (const t of p.transactions as Record<string, unknown>[]) {
       const date = String(t.date ?? "")
       const description = String(t.description ?? "")
       const amount = typeof t.amount === "number" ? t.amount : parseFloat(String(t.amount ?? "0"))
       const rawData = String(t.rawData ?? "")
+      const quantity = typeof t.quantity === "number" && !isNaN(t.quantity) ? t.quantity : undefined
+      const unitPrice = typeof t.unitPrice === "number" && !isNaN(t.unitPrice) ? t.unitPrice : undefined
       if (date && description && !isNaN(amount)) {
-        transactions.push({ date, description, amount, rawData })
+        transactions.push({ date, description, amount, rawData, quantity, unitPrice })
       }
     }
     if (transactions.length === 0) {
       return { ok: false, error: "LLM não encontrou nenhuma transação válida no arquivo." }
     }
-    return { ok: true, transactions, bankName }
+    return { ok: true, transactions, bankName, closingBalanceBRL }
   }
 
   return { ok: false, error: "LLM retornou formato inesperado." }

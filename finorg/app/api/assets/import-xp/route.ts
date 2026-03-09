@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma as db } from '@/lib/db'
 import { parseXPPortfolioBuffer } from '@/lib/parsers/xp-portfolio'
+import { generateTransactionHash } from '@/lib/utils'
 
 export async function POST(req: NextRequest) {
   try {
@@ -33,6 +34,31 @@ export async function POST(req: NextRequest) {
     let created = 0
     let updated = 0
     let snapshots = 0
+    let txCreated = 0
+
+    // Find or create XP investment account
+    let xpAccount = await db.account.findFirst({ where: { institution: 'xp' } })
+    if (!xpAccount) {
+      xpAccount = await db.account.create({
+        data: { name: 'XP Investimentos', institution: 'xp', type: 'investment' },
+      })
+    }
+
+    const existingHashes = new Set(
+      (await db.transaction.findMany({ select: { hash: true } })).map((t) => t.hash)
+    )
+
+    // Create an import batch for the transactions
+    const batch = await db.importBatch.create({
+      data: {
+        fileName: file.name,
+        bank: 'xp',
+        imported: 0,
+        duplicates: 0,
+        errors: parsed.parseErrors.length,
+        status: 'imported',
+      },
+    })
 
     for (const asset of parsed.assets) {
       // Upsert asset by (name, institution, type) — name + institution is usually unique enough
@@ -72,7 +98,35 @@ export async function POST(req: NextRequest) {
         update: { value: asset.currentValue },
       })
       snapshots++
+
+      // Also create a portfolio position transaction so average price can be tracked
+      const txHash = generateTransactionHash(parsed.snapshotDate, `Posição ${asset.name}`, asset.currentValue)
+      if (!existingHashes.has(txHash)) {
+        await db.transaction.create({
+          data: {
+            date: new Date(parsed.snapshotDate),
+            description: `Posição ${asset.name}`,
+            amount: asset.currentValue,
+            quantity: asset.quantity || null,
+            unitPrice: asset.lastPrice || null,
+            type: 'investimento',
+            accountId: xpAccount!.id,
+            rawData: JSON.stringify(asset),
+            hash: txHash,
+            importBatchId: batch.id,
+            reviewStatus: 'pending',
+          },
+        })
+        existingHashes.add(txHash)
+        txCreated++
+      }
     }
+
+    // Update the batch's imported count
+    await db.importBatch.update({
+      where: { id: batch.id },
+      data: { imported: txCreated },
+    })
 
     return NextResponse.json({
       snapshotDate: parsed.snapshotDate,
@@ -81,6 +135,8 @@ export async function POST(req: NextRequest) {
       assetsCreated: created,
       assetsUpdated: updated,
       snapshotsUpserted: snapshots,
+      transactionsCreated: txCreated,
+      batchId: batch.id,
       parseErrors: parsed.parseErrors,
     })
   } catch (err) {

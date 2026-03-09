@@ -87,6 +87,19 @@ function backupDatabase() {
   }
 }
 
+/** Detect CSV delimiter (semicolon vs comma) and split into 2-D array */
+function detectDelimiterAndSplit(csvText: string): string[][] {
+  const normalized = csvText.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
+  const firstLines = normalized.split("\n").slice(0, 5).join("\n")
+  const semicolons = (firstLines.match(/;/g) ?? []).length
+  const commas = (firstLines.match(/,/g) ?? []).length
+  const delimiter = semicolons > commas ? ";" : ","
+  return normalized
+    .trim()
+    .split("\n")
+    .map((line) => line.split(delimiter))
+}
+
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData()
@@ -118,7 +131,7 @@ export async function POST(req: NextRequest) {
     if (!bank) {
       const rows: string[][] = isXlsx && xlsxParsed
         ? xlsxParsed.rawRows
-        : csvText.trim().split("\n").map((line) => line.split(","))
+        : detectDelimiterAndSplit(csvText)
       const refDate = (isXlsx && xlsxParsed?.referenceDate) || new Date().toISOString().slice(0, 10)
 
       console.log(`[import] Standard parsers failed on ${isXlsx ? "XLSX" : "CSV"} — trying LLM mapper`)
@@ -134,11 +147,14 @@ export async function POST(req: NextRequest) {
       const detectedBank = llmResult.bankName.toLowerCase().replace(/\s+/g, "-")
       const detectedName = llmResult.bankName
 
+      // Detect if this is investment/portfolio data (many position entries)
+      const isPortfolio = llmResult.transactions.some(t => t.description.startsWith("Posição") || t.quantity !== undefined)
+
       // Find / create account for the detected bank
       let account = await db.account.findFirst({ where: { institution: detectedBank } })
       if (!account) {
         account = await db.account.create({
-          data: { name: detectedName, institution: detectedBank, type: "checking" },
+          data: { name: detectedName, institution: detectedBank, type: isPortfolio ? "investment" : "checking" },
         })
       }
       const accountId = accountIdOverride ?? account.id
@@ -152,6 +168,9 @@ export async function POST(req: NextRequest) {
           date: new Date(t.date),
           description: t.description,
           amount: t.amount,
+          quantity: t.quantity ?? null,
+          unitPrice: t.unitPrice ?? null,
+          type: (t.quantity !== undefined || t.description.startsWith("Posição")) ? "investimento" : null as string | null,
           accountId,
           rawData: t.rawData,
           hash: generateTransactionHash(t.date, t.description, t.amount),
@@ -177,6 +196,48 @@ export async function POST(req: NextRequest) {
         await db.transaction.createMany({
           data: toInsert.map((t) => ({ ...t, importBatchId: batch.id, reviewStatus: "pending" })),
         })
+      }
+
+      // --- Opening balance reconciliation ---
+      // If the file declares a BRL closing balance AND this is a brand-new account
+      // (no prior transactions), check if the sum of imported transactions matches.
+      // If not, create a "Saldo anterior" entry to reconcile.
+      if (
+        llmResult.closingBalanceBRL !== undefined &&
+        llmResult.closingBalanceBRL !== null
+      ) {
+        const priorTxCount = await db.transaction.count({
+          where: { accountId, importBatchId: { not: batch.id } },
+        })
+        if (priorTxCount === 0) {
+          const importedSum = toInsert.reduce((s, t) => s + t.amount, 0)
+          const diff = Math.round((llmResult.closingBalanceBRL - importedSum) * 100) / 100
+          if (Math.abs(diff) > 0.009) {
+            // The earliest date in the file minus one day
+            const dates = toInsert.map((t) => t.date.getTime())
+            const earliestMs = dates.length ? Math.min(...dates) : Date.now()
+            const balanceDate = new Date(earliestMs - 86_400_000)
+            const balanceHash = generateTransactionHash(
+              balanceDate.toISOString().slice(0, 10),
+              "Saldo anterior",
+              diff
+            )
+            if (!existingHashes.has(balanceHash)) {
+              await db.transaction.create({
+                data: {
+                  date: balanceDate,
+                  description: "Saldo anterior",
+                  amount: diff,
+                  accountId,
+                  rawData: JSON.stringify({ source: "opening-balance", closingBalance: llmResult.closingBalanceBRL }),
+                  hash: balanceHash,
+                  importBatchId: batch.id,
+                  reviewStatus: "pending",
+                },
+              })
+            }
+          }
+        }
       }
 
       return NextResponse.json({

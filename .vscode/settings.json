@@ -9,6 +9,7 @@
         "Push-Location": true,
         "npm run dev": true,
         "npm run build": true,
-        "npx tsc": true
+        "npx tsc": true,
+        "npx vercel": true
     }
 }
